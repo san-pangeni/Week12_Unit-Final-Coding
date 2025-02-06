@@ -3,10 +3,150 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Tic-Tac-Toe</title>
+    <!-- Bootstrap CSS -->
+
+    <link
+      href="node_modules/bootstrap/dist/css/bootstrap.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      .cell {
+        height: 100px;
+        border: 2px solid #000;
+        font-size: 3em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      #board {
+        max-width: 400px;
+        margin: 20px auto;
+      }
+      #alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: none;
+      }
+    </style>
   </head>
   <body>
+    <div class="container text-center mt-5">
+      <h1 id="turn">X's Turn</h1>
+
+      <div id="board">
+        <div class="row">
+          <div class="cell col-4" data-index="0"></div>
+          <div class="cell col-4" data-index="1"></div>
+          <div class="cell col-4" data-index="2"></div>
+        </div>
+        <div class="row">
+          <div class="cell col-4" data-index="3"></div>
+          <div class="cell col-4" data-index="4"></div>
+          <div class="cell col-4" data-index="5"></div>
+        </div>
+        <div class="row">
+          <div class="cell col-4" data-index="6"></div>
+          <div class="cell col-4" data-index="7"></div>
+          <div class="cell col-4" data-index="8"></div>
+        </div>
+      </div>
+
+      <button id="restart" class="btn btn-primary mt-3">Restart Game</button>
+
+      <div
+        id="alert"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert"
+      >
+        <span id="alert-message"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
     <script src="node_modules/jquery/dist/jquery.js"></script>
-    <script src="aap.js"></script>
+    <script src="node_modules/bootstrap/dist/css/bootstrap-grid.css"></script>
+
+    <script>
+      $(document).ready(function () {
+        let currentPlayer = "X";
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+        const winningCombos = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8], // Rows
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8], // Columns
+          [0, 4, 8],
+          [2, 4, 6], // Diagonals
+        ];
+
+        // Handle cell clicks
+        $(".cell").on("click", function () {
+          const index = $(this).data("index");
+
+          if (gameActive && gameState[index] === "") {
+            gameState[index] = currentPlayer;
+            $(this).text(currentPlayer);
+
+            if (checkWin()) {
+              showAlert(currentPlayer + " wins!", "success");
+              gameActive = false;
+              $("#turn").text(currentPlayer + " wins!");
+            } else if (checkDraw()) {
+              showAlert("Game Draw!", "info");
+              gameActive = false;
+              $("#turn").text("Game Draw!");
+            } else {
+              currentPlayer = currentPlayer === "X" ? "O" : "X";
+              $("#turn").text(currentPlayer + "'s Turn");
+            }
+          }
+        });
+
+        // Restart game
+        $("#restart").on("click", function () {
+          gameState = ["", "", "", "", "", "", "", "", ""];
+          currentPlayer = "X";
+          gameActive = true;
+          $(".cell").text("");
+          $("#turn").text("X's Turn");
+          $("#alert").hide();
+        });
+
+        function checkWin() {
+          return winningCombos.some((combo) => {
+            return combo.every((index) => {
+              return gameState[index] === currentPlayer;
+            });
+          });
+        }
+
+        function checkDraw() {
+          return gameState.every((cell) => cell !== "");
+        }
+
+        function showAlert(message, type) {
+          $("#alert")
+            .removeClass("alert-success alert-info")
+            .addClass(`alert-${type}`)
+            .find("#alert-message")
+            .text(message);
+          $("#alert").show();
+        }
+      });
+    </script>
   </body>
 </html>
